@@ -1,0 +1,279 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Weather Digest API",
+    "description": "Коллекция для утилиты «Погодный дайджест». Два запроса: геокодинг (получение координат по названию города) и прогноз погоды (по координатам).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Geocoding — получить координаты города",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has results array', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('results');",
+              "    pm.expect(json.results).to.be.an('array');",
+              "});",
+              "",
+              "// Автоматически сохраняем координаты в переменные коллекции",
+              "const json = pm.response.json();",
+              "if (json.results && json.results.length > 0) {",
+              "    pm.collectionVariables.set('lat', json.results[0].latitude);",
+              "    pm.collectionVariables.set('lon', json.results[0].longitude);",
+              "    console.log('Сохранены координаты:', json.results[0].latitude, json.results[0].longitude);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrlGeo}}?name={{city}}&count=1&language=ru&format=json",
+          "host": ["{{baseUrlGeo}}"],
+          "query": [
+            { "key": "name", "value": "{{city}}" },
+            { "key": "count", "value": "1" },
+            { "key": "language", "value": "ru" },
+            { "key": "format", "value": "json" }
+          ]
+        },
+        "description": "Получает координаты (latitude, longitude) по названию города. Результат записывается в переменные {{lat}} и {{lon}}."
+      },
+      "response": [
+        {
+          "name": "Success 200 — город найден",
+          "originalRequest": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrlGeo}}?name=Нижний Новгород&count=1&language=ru&format=json",
+              "host": ["{{baseUrlGeo}}"],
+              "query": [
+                { "key": "name", "value": "Нижний Новгород" },
+                { "key": "count", "value": "1" },
+                { "key": "language", "value": "ru" },
+                { "key": "format", "value": "json" }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "cookie": [],
+          "body": "{\n  \"results\": [\n    {\n      \"id\": 520555,\n      \"name\": \"Нижний Новгород\",\n      \"latitude\": 56.32694,\n      \"longitude\": 44.00599,\n      \"elevation\": 130.0,\n      \"feature_code\": \"PPLA\",\n      \"country_code\": \"RU\",\n      \"admin1_id\": 559838,\n      \"timezone\": \"Europe/Moscow\",\n      \"population\": 1259013,\n      \"country_id\": 2017370,\n      \"country\": \"Russia\",\n      \"admin1\": \"Нижегородская область\"\n    }\n  ],\n  \"generationtime_ms\": 0.85\n}"
+        },
+        {
+          "name": "City Not Found 200 — пустой результат",
+          "originalRequest": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrlGeo}}?name=Атлантида&count=1&language=ru&format=json",
+              "host": ["{{baseUrlGeo}}"],
+              "query": [
+                { "key": "name", "value": "Атлантида" },
+                { "key": "count", "value": "1" },
+                { "key": "language", "value": "ru" },
+                { "key": "format", "value": "json" }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "cookie": [],
+          "body": "{\n  \"generationtime_ms\": 0.42\n}"
+        },
+        {
+          "name": "Bad Request 400 — отсутствует параметр name",
+          "originalRequest": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrlGeo}}?count=1&language=ru&format=json",
+              "host": ["{{baseUrlGeo}}"],
+              "query": [
+                { "key": "count", "value": "1" },
+                { "key": "language", "value": "ru" },
+                { "key": "format", "value": "json" }
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "cookie": [],
+          "body": "{\n  \"error\": true,\n  \"reason\": \"Parameter 'name' is required\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "2. Forecast — прогноз по координатам",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has daily block', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('daily');",
+              "    pm.expect(json.daily).to.have.property('time');",
+              "    pm.expect(json.daily).to.have.property('temperature_2m_max');",
+              "    pm.expect(json.daily).to.have.property('temperature_2m_min');",
+              "    pm.expect(json.daily).to.have.property('precipitation_sum');",
+              "});",
+              "",
+              "pm.test('Number of days matches request', function () {",
+              "    const json = pm.response.json();",
+              "    const expected = parseInt(pm.collectionVariables.get('days')) || 3;",
+              "    pm.expect(json.daily.time.length).to.eql(expected);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrlForecast}}?latitude={{lat}}&longitude={{lon}}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days={{days}}&timezone=auto",
+          "host": ["{{baseUrlForecast}}"],
+          "query": [
+            { "key": "latitude", "value": "{{lat}}" },
+            { "key": "longitude", "value": "{{lon}}" },
+            {
+              "key": "daily",
+              "value": "temperature_2m_max,temperature_2m_min,precipitation_sum"
+            },
+            { "key": "forecast_days", "value": "{{days}}" },
+            { "key": "timezone", "value": "auto" }
+          ]
+        },
+        "description": "Получает прогноз погоды по координатам {{lat}}, {{lon}} на {{days}} дней. Возвращает массив дат, минимумов/максимумов температуры и осадков."
+      },
+      "response": [
+        {
+          "name": "Success 200 — прогноз получен",
+          "originalRequest": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrlForecast}}?latitude=56.32694&longitude=44.00599&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=3&timezone=auto",
+              "host": ["{{baseUrlForecast}}"],
+              "query": [
+                { "key": "latitude", "value": "56.32694" },
+                { "key": "longitude", "value": "44.00599" },
+                {
+                  "key": "daily",
+                  "value": "temperature_2m_max,temperature_2m_min,precipitation_sum"
+                },
+                { "key": "forecast_days", "value": "3" },
+                { "key": "timezone", "value": "auto" }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "cookie": [],
+          "body": "{\n  \"latitude\": 56.25,\n  \"longitude\": 44.0,\n  \"generationtime_ms\": 0.65,\n  \"utc_offset_seconds\": 10800,\n  \"timezone\": \"Europe/Moscow\",\n  \"timezone_abbreviation\": \"MSK\",\n  \"elevation\": 130.0,\n  \"daily_units\": {\n    \"time\": \"iso8601\",\n    \"temperature_2m_max\": \"°C\",\n    \"temperature_2m_min\": \"°C\",\n    \"precipitation_sum\": \"mm\"\n  },\n  \"daily\": {\n    \"time\": [\"2026-09-14\", \"2026-09-15\", \"2026-09-16\"],\n    \"temperature_2m_max\": [4.3, 5.1, 6.0],\n    \"temperature_2m_min\": [-2.1, -3.0, -1.5],\n    \"precipitation_sum\": [0.0, 0.2, 0.0]\n  }\n}"
+        },
+        {
+          "name": "Bad Request 400 — некорректная широта",
+          "originalRequest": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrlForecast}}?latitude=abc&longitude=44.00599&daily=temperature_2m_max&forecast_days=3",
+              "host": ["{{baseUrlForecast}}"],
+              "query": [
+                { "key": "latitude", "value": "abc" },
+                { "key": "longitude", "value": "44.00599" },
+                { "key": "daily", "value": "temperature_2m_max" },
+                { "key": "forecast_days", "value": "3" }
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "cookie": [],
+          "body": "{\n  \"error\": true,\n  \"reason\": \"Invalid value for parameter 'latitude': abc\"\n}"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrlGeo",
+      "value": "https://geocoding-api.open-meteo.com/v1/search",
+      "type": "string"
+    },
+    {
+      "key": "baseUrlForecast",
+      "value": "https://api.open-meteo.com/v1/forecast",
+      "type": "string"
+    },
+    {
+      "key": "city",
+      "value": "Нижний Новгород",
+      "type": "string"
+    },
+    {
+      "key": "lat",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lon",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "days",
+      "value": "3",
+      "type": "string"
+    }
+  ]
+}
