@@ -1,0 +1,6 @@
+node_modules/
+reposts/
+.env
+*.log
+.DS_Store
+coverage/

@@ -1,0 +1,29 @@
+{
+  "city": "Москва",
+  "country": "Россия",
+  "coords": {
+    "latitude": 55.75204,
+    "longitude": 37.61781
+  },
+  "days": [
+    {
+      "date": "2026-09-13",
+      "tMax": 16.2,
+      "tMin": 7.7,
+      "precipitation": 0
+    },
+    {
+      "date": "2026-09-14",
+      "tMax": 18.4,
+      "tMin": 9.2,
+      "precipitation": 0
+    },
+    {
+      "date": "2026-09-15",
+      "tMax": 18.6,
+      "tMin": 11.7,
+      "precipitation": 0.1
+    }
+  ],
+  "generatedAt": "2026-09-13T15:10:38.717Z"
+}
